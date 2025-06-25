@@ -56,19 +56,20 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 category_id = ?
                 """;
 
-        try (Connection connection = getConnection()){
-
-        PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, categoryId);
-
-        ResultSet results = ps.executeQuery();
-
-        if (results.next()) {
-            return mapRow(results);
-        }
-
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Connection connection = getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+        ) {
+            ps.setInt(1, categoryId);
+            try (ResultSet results = ps.executeQuery()) {
+                {
+                    if (results.next()) {
+                        return mapRow(results);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database error in getById" + e.getMessage());
+            throw new RuntimeException("Database error while getting category" + categoryId, e);
         }
 
         return null;
@@ -85,21 +86,21 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 (?, ?) 
                 """;
 
-        try (Connection connection = getConnection()){
+        try (Connection connection = getConnection();
+             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);){
 
-            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, category.getName());
             ps.setString(2, category.getDescription());
 
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                ResultSet keys = ps.getGeneratedKeys();
+                try(ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        int categoryId = keys.getInt(1);
 
-                if (keys.next()) {
-                    int caregoryId = keys.getInt(1);
-
-                    return getById(caregoryId);
+                        return getById(categoryId);
+                    }
                 }
             }
         }catch (SQLException e) {
@@ -121,9 +122,9 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 category_id = ?
                 """;
 
-        try (Connection connection = getConnection()){
+        try (Connection connection = getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);){
 
-            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, category.getName());
             ps.setString(2, category.getDescription());
             ps.setInt(3, categoryId);
@@ -144,12 +145,14 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 category_id = ?
                 """;
 
-        try (Connection connection = getConnection()){
+        try (Connection connection = getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);){
 
-            PreparedStatement ps = connection.prepareStatement(query);
+
             ps.setInt(1, categoryId);
 
             ps.executeUpdate();
+
         }catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -170,5 +173,4 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
         return category;
     }
-
 }
