@@ -25,8 +25,8 @@ public class ShoppingCartController
     private UserDao userDao;
     private ProductDao productDao;
 
-    public ShoppingCartController(/*ShoppingCartDao shoppingCartDao,*/ UserDao userDao, ProductDao productDao) {
-        // this.shoppingCartDao = shoppingCartDao;
+    public ShoppingCartController(ShoppingCartDao shoppingCartDao, UserDao userDao, ProductDao productDao) {
+        this.shoppingCartDao = shoppingCartDao;
         this.userDao = userDao;
         this.productDao = productDao;
     }
@@ -42,7 +42,7 @@ public class ShoppingCartController
             // find database user by userId
             User user = userDao.getByUserName(userName);
             int userId = user.getId();
-
+            
             // use the shoppingcartDao to get all items in the cart and return the cart
             return null;
         }
