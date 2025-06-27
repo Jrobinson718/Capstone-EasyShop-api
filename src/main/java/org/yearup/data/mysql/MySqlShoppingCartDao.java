@@ -23,6 +23,18 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         this.productDao = productDao;
     }
 
+    /**
+     * Retrieves the shopping cart for a specific user.
+     *
+     * This method queries the database to get all items and their quantities
+     * associated with the given {@code userId}. It then creates a {@link ShoppingCart}
+     * object by getting the product details for each item.
+     *
+     * @param userId The unique identifier of the user whose shopping cart is to be retrieved.
+     * @return A {@link ShoppingCart} object containing all items currently in the user's cart.
+     * Returns an empty shopping cart if the user has no items.
+     * @throws RuntimeException If a SQL exception occurs during the database operation.
+     */
     @Override
     public ShoppingCart getByUserId(int userId) {
         ShoppingCart cart = new ShoppingCart();
@@ -59,6 +71,18 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         return cart;
     }
 
+    /**
+     * Adds an item to a user's shopping cart or updates its quantity if already present.
+     *
+     * This method first checks if the product already exists in the user's cart.
+     * If it does, the quantity is increased by the specified amount. If not, a new
+     * product is created in the shopping cart.
+     *
+     * @param userId The unique identifier of the user.
+     * @param productId The ID of the product to add or update.
+     * @param quantity The amount to add to the product's quantity in the cart.
+     * @throws RuntimeException If a SQL exception occurs during the database operation.
+     */
     @Override
     public void addItem(int userId, int productId, int quantity) {
         String checkQuery = "SELECT quantity FROM shopping_cart WHERE user_id = ? AND product_id = ?";
@@ -95,6 +119,18 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         }
     }
 
+    /**
+     * Updates the quantity of a specific item in a user's shopping cart.
+     *
+     * If the {@code quantity} provided is less than or equal to 0, this method
+     * will effectively remove the item from the cart by calling {@code removeItem}.
+     * Otherwise, it updates the item's quantity to the new specified value.
+     *
+     * @param userId The unique identifier of the user whose cart item is being updated.
+     * @param productId The ID of the product to update.
+     * @param quantity The new quantity for the product in the cart. If <= 0, the item is removed.
+     * @throws RuntimeException If a SQL exception occurs during the database operation.
+     */
     @Override
     public void updateItem(int userId, int productId, int quantity) {
         if (quantity <= 0) {
@@ -116,6 +152,15 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         }
     }
 
+    /**
+     * Removes a specific item from a user's shopping cart.
+     *
+     * This method deletes the entry for a given product and user from the shopping cart table.
+     *
+     * @param userId The unique identifier of the user.
+     * @param productId The ID of the product to remove from the cart.
+     * @throws RuntimeException If a SQL exception occurs during the database operation.
+     */
     @Override
     public void removeItem(int userId, int productId) {
         String query = "DELETE FROM shopping_cart WHERE user_id = ? AND product_id = ?";
@@ -132,6 +177,15 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         }
     }
 
+    /**
+     * Clears all items from a user's shopping cart.
+     *
+     * This method deletes all entries associated with a specific user from the shopping cart table,
+     * effectively emptying their cart.
+     *
+     * @param userId The unique identifier of the user whose shopping cart is to be cleared.
+     * @throws RuntimeException If a SQL exception occurs during the database operation.
+     */
     @Override
     public void delete(int userId) {
         String query = "DELETE FROM shopping_cart WHERE user_id = ?";
@@ -147,6 +201,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         }
     }
 
+    // Will be implemented later
     @Override
     public void save(ShoppingCart cart) {
         throw new UnsupportedOperationException("Use addItem/updateItem/removeItem instead");
